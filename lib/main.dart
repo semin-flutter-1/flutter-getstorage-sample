@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
   runApp(MyApp());
 }
 
@@ -35,6 +37,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final box = GetStorage();
+
   final List<Map<String, dynamic>> items = [
     {
       'title': '수원낚시',
@@ -44,7 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
     },
   ];
 
-    final Map<String, bool> bookmarks = {};
+  Map<String, bool> bookmarks = {};
+
+  @override
+  void initState() {
+    super.initState();
+    bookmarks = Map<String, bool>.from(box.read('bookmarks') ?? {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +75,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 setState(() {
                   bool currentFavorite = bookmarks[title] ?? false;
                   bookmarks[title] = !currentFavorite;
+
+                  box.write('bookmarks', bookmarks);
                 });
               },
             );
           }),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    print('dispose');
+  }
+
 }
